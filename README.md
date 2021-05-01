@@ -11,13 +11,17 @@ uses a cBPF virtual machine compatible with a set of BPF instructions which [tcp
 It provides simple APIs to implement filtering feature at in-driver layer.
 
 # Table of Contents
-- [Basic Overview](#basic-overview)
+- [Architecture](#architecture)
+- [API Overview](#api-overview)
 - [Generate Instructions](#generate-instructions)
 - [Who uses esBPF](#who-uses-esbpf)
 - [Contributing](#contributing)
 - [License](#license)
 
-# Basic Overview
+# Architecture
+![diagram](/resources/diagram/esbpf.jpg)
+
+# API Overview
 - core.c/h: They include core structs, instructions, and functions to manipulate packets by attached filter.
 - proc.c/h: A procfs class that gives you a way to attach a filter to drivers.
 - helper.h: A helper struct that might help developers to do programming on drivers.
@@ -30,13 +34,13 @@ For instance, if you want to reject incoming ICMP packets,
 tcpdump -dd -nn icmp
 ```
 
-Please see `tools/filter_icmp.c` for more detail.
+Please see `tools/filter_icmp.c` how to use the instructions in detail.
 
 # Who uses esBPF
 1. [smsc95xx-esbpf](https://github.com/memnoth/smsc95xx-esbpf) - (Raspberry PI 3 B ethernet driver)
 
 # Contributing
-Always welcome to good ideas but you must be nice with others.  
+Always welcome to good ideas but you must be nice.  
 What you do on the net is saying who you are.
 
 # License
