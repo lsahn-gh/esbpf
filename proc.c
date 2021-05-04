@@ -15,14 +15,12 @@
 static void *
 filter_seq_start(struct seq_file *f, loff_t *pos)
 {
-	/* TODO */
 	return NULL;
 }
 
 static void *
 filter_seq_next(struct seq_file *f, void *v, loff_t *pos)
 {
-	/* TODO */
 	return NULL;
 }
 
@@ -45,17 +43,17 @@ static const struct seq_operations filter_seq_ops = {
 	.show = filter_seq_show,
 };
 
-static int filter_proc_open(struct inode *inode,
-                            struct file *file)
+static int rx_filter_proc_open(struct inode *inode,
+                               struct file *file)
 {
 	return seq_open(file, &filter_seq_ops);
 }
 
 static ssize_t
-filter_proc_write(struct file *file,
-                  const char *buffer,
-                  size_t len,
-                  loff_t *off)
+rx_filter_proc_write(struct file *file,
+                     const char *buffer,
+                     size_t len,
+                     loff_t *off)
 {
   struct sock_fprog fprog;
   struct esbpf_helper *helper;
@@ -75,11 +73,11 @@ filter_proc_write(struct file *file,
   helper = PDE_DATA(file_inode(file));
 
   /* replace */
-  spin_lock(&helper->filter_lock);
-  old_filt = rcu_dereference_protected(helper->filter,
-                  lockdep_is_held(&helper->filter_lock));
-  rcu_assign_pointer(helper->filter, new_filt);
-  spin_unlock(&helper->filter_lock);
+  spin_lock(&helper->rx_filter_lock);
+  old_filt = rcu_dereference_protected(helper->rx_filter,
+                  lockdep_is_held(&helper->rx_filter_lock));
+  rcu_assign_pointer(helper->rx_filter, new_filt);
+  spin_unlock(&helper->rx_filter_lock);
 
   if (old_filt)
     esbpf_release_filter(old_filt);
@@ -87,16 +85,16 @@ filter_proc_write(struct file *file,
   return len;
 }
 
-static const struct file_operations filter_fops = {
+static const struct file_operations rx_filter_fops = {
   .owner    = THIS_MODULE,
-  .open     = filter_proc_open,
-  .write    = filter_proc_write,
+  .open     = rx_filter_proc_open,
+  .write    = rx_filter_proc_write,
   .llseek   = seq_lseek,
   .release  = seq_release,
 };
 
 static int
-show_match_count(struct seq_file *s, void *unused)
+rx_show_match_count(struct seq_file *s, void *unused)
 {
   struct esbpf_helper *helper = s->private;
   int match_cnt = -1;
@@ -104,7 +102,7 @@ show_match_count(struct seq_file *s, void *unused)
   if (helper) {
     struct esbpf_filter *filt; 
     rcu_read_lock();
-    filt = rcu_dereference(helper->filter);
+    filt = rcu_dereference(helper->rx_filter);
     if (filt)
       match_cnt = atomic_read(&filt->match);
     rcu_read_unlock();
@@ -127,12 +125,12 @@ esbpf_proc_init(struct proc_dir_entry *root,
   if (!esb_root)
     return ret;
 
-  if (!proc_create_data("filter", 0644, esb_root,
-                        &filter_fops, hdata))
+  if (!proc_create_data("rx_filter", 0644, esb_root,
+                        &rx_filter_fops, hdata))
     goto err;
 
-  if (!proc_create_single_data("match_count", 0, esb_root,
-                               show_match_count, hdata))
+  if (!proc_create_single_data("rx_match_count", 0, esb_root,
+                               rx_show_match_count, hdata))
     goto err;
 
   return 0;

@@ -14,14 +14,14 @@ struct esbpf_filter;
 
 struct esbpf_helper
 {
-  struct esbpf_filter *filter;
-  spinlock_t filter_lock;
+  struct esbpf_filter *rx_filter;
+  spinlock_t rx_filter_lock;
 };
 
 static inline void
 esbpf_helper_init(struct esbpf_helper *helper)
 {
-  spin_lock_init(&helper->filter_lock);
+  spin_lock_init(&helper->rx_filter_lock);
 }
 
 #endif /* __ESBPF_HELPER_H__ */
