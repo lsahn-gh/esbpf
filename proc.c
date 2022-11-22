@@ -70,7 +70,7 @@ rx_filter_proc_write(struct file *file,
   if (ret)
     return ret;
 
-  helper = PDE_DATA(file_inode(file));
+  helper = pde_data(file_inode(file));
 
   /* replace */
   spin_lock(&helper->rx_filter_lock);
@@ -85,12 +85,11 @@ rx_filter_proc_write(struct file *file,
   return len;
 }
 
-static const struct file_operations rx_filter_fops = {
-  .owner    = THIS_MODULE,
-  .open     = rx_filter_proc_open,
-  .write    = rx_filter_proc_write,
-  .llseek   = seq_lseek,
-  .release  = seq_release,
+static const struct proc_ops rx_filter_fops = {
+  .proc_open     = rx_filter_proc_open,
+  .proc_write    = rx_filter_proc_write,
+  .proc_lseek    = seq_lseek,
+  .proc_release  = seq_release,
 };
 
 static int
