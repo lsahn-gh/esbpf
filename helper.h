@@ -21,15 +21,15 @@ enum {
 struct esbpf_helper
 {
   atomic_t rx_enable;
-  struct esbpf_filter *rx_filter;
-  spinlock_t rx_filter_lock;
+  struct esbpf_filter *rx_hooks;
+  spinlock_t rx_hooks_lock;
 };
 
 static inline void
 esbpf_helper_init(struct esbpf_helper *helper)
 {
   helper->rx_enable = (atomic_t)ATOMIC_INIT(ESBPF_OFF);
-  spin_lock_init(&helper->rx_filter_lock);
+  spin_lock_init(&helper->rx_hooks_lock);
 }
 
 #endif /* __ESBPF_HELPER_H__ */
